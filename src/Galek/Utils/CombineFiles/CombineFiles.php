@@ -102,16 +102,33 @@ class CombineFiles implements ICombineFiles
         $ttt = __DIR__.'/test';
         $files = $this->getFiles();
         $contents = '';
+        $createJson = [];
+        //$timing = "{\n";
         foreach ($files as $file) {
-            $fopen = fopen($this->realFile($file), 'r');
+            $fopen = fopen('nette.safe://'.$this->realFile($file), 'r');
             $size = filesize($this->realFile($file));
+            $time = filemtime($this->realFile($file));
             if ($size > 0) {
               $contents .= fread($fopen, filesize($this->realFile($file)));
+              $createJson[$file] = $time;
+              //$timing .= "\t".$file.": ".$time.",\n";
             }
             fclose($fopen);
         }
-        var_dump($contents);
-        $fopen = fopen($this->path.'/'.$this->name.'.'.$this->type,'w+');
+        //$timing .= "}";
+
+
+        //$timing = md5($timing);
+        //var_dump($timing);
+        $lockFile = $this->path.'/'.$this->name.'.'.$this->type.'.lock';
+        $fopen = fopen('nette.safe://'.$lockFile, 'w+');
+        $json = fread($fopen, filesize($lockFile));
+        var_dump(json_decode($json));
+        //fwrite($fopen, $timing);
+        fwrite($fopen, json_encode($createJson));
+        fclose($fopen);
+
+        $fopen = fopen('nette.safe://'.$this->path.'/'.$this->name.'.'.$this->type,'w+');
         fwrite($fopen, $contents);
         fclose($fopen);
     }
