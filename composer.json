@@ -1,0 +1,25 @@
+{
+    "name": "galek/combine-files",
+    "description": "Nette extension, Combine files js, css, less,... for SEO",
+    "homepage": "https://jan-galek.cz",
+    "type": "project",
+    "license": "GPL-3.0",
+    "authors": [
+      {
+        "name": "Jan Galek",
+        "homepage": "https://jan-galek.cz"
+      }
+    ],
+    "autoload": {
+      "psr-4": {
+          "Galek\\Utils\\": "src/Galek/Utils/CombineFiles"
+      }
+    },
+    "require": {
+        "php": ">= 5.4.0",
+        "nette/safe-stream": "^2"
+    },
+    "require-dev": {
+        "nette/tester": "^1.7"
+    }
+}
