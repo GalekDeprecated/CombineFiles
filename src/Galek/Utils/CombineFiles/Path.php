@@ -4,6 +4,7 @@ namespace Galek\Utils;
 
 class Path
 {
+  
     public static function normalize($path)
     {
         $path = strtr($path, '\\', '/');

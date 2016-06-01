@@ -7,7 +7,7 @@ Fast resolve for Google PageSpeed Insights combine warning (more css files). Now
 Package Installation
 -------------------
 
-The best way to install Nette Calendar is using [Composer](http://getcomposer.org/):
+The best way to install Combine Files is using [Composer](http://getcomposer.org/):
 
 ```sh
 $ composer require galek/combine-files

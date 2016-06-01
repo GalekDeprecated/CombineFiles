@@ -1,7 +1,6 @@
 <?php
 
 require __DIR__.'/../../vendor/autoload.php';
-$utilsFolder = __DIR__.'/../../src/Galek/Utils/CombineFiles/Utils/';
 
 use Galek\Utils;
 use Galek\Utils\CombineFiles;
