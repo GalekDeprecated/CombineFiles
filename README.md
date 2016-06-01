@@ -1,7 +1,7 @@
 # CombineFiles
 
 ## Example
-/--php
+```php
   use Galek\Utils;
   use Galek\Utils\CombineFiles;
 
@@ -24,4 +24,4 @@
   <link rel="stylesheet" type="text/css" href="<?php $basic->render(); ?>">
 
   <h1>Tested</h1>
---/
+```
