@@ -4,6 +4,11 @@ namespace Galek\Utils;
 
 use Galek\Utils\Path;
 use Galek\Utils\FileManager;
+use Galek\Utils\JsonChecker;
+use Galek\Utils\IFileManager;
+use Galek\Utils\IJsonChecker;
+use Galek\Utils\Compiler;
+use Galek\Utils\ICompiler;
 /**
  * @author Jan Galek
  */
@@ -11,6 +16,9 @@ class CombineFiles implements ICombineFiles
 {
     /** @var array */
     private $files = [];
+
+    /** @var string */
+    private $root;
 
     /** @var string */
     private $path;
@@ -21,51 +29,54 @@ class CombineFiles implements ICombineFiles
     /** @var string */
     private $type;
 
-    /** @var FileManager */
+    /** @var IFileManager */
     private $fmanager;
 
-    public function __construct($path = null, $name = 'combined')
+    /** @var IJsonChecker */
+    private $checker;
+
+    /** @var ICompiler */
+    private $compiler;
+
+    public function __construct($root, $path = null, $name = 'combined', IFileManager $manager = null, IJsonChecker $checker = null, ICompiler $compiler = null)
     {
+        $this->root = $root;
         $this->path = $path;
         $this->name = $name;
-        $this->fmanager = new FileManager($path);
+        $this->fmanager = ($manager ? $manager : new FileManager($this->root, $path));
+        $this->checker = ($checker ? $checker : new JsonChecker($this->fmanager));
+        $this->compiler = ($compiler ? $compiler : new Compiler($this->fmanager, $this->checker));
+
     }
 
-    public function getFiles()
+    public function setName($name)
     {
-        $files = array_values($this->files);
-        foreach ($files as $file) {
-            if (!isset($type)) {
-                $type = pathinfo($this->realFile($file))['extension'];
-                $this->type = $type;
-            }
-
-            if (pathinfo($this->realFile($file))['extension'] != $type) {
-                $badtype = pathinfo($file)['extension'];
-                throw new \Exception("Was set type '$type', but '$file' is '$badtype'");
-            }
-        }
-        return array_values($this->files);
+        $this->name = $name;
     }
 
-    private function realFile($file)
+    public function setPath($path)
     {
-        $real = Path::normalize($this->path.'/'.$file);
-        if (file_exists($real)) {
-            return $real;
-        }
+        $this->path = $path;
+    }
 
-        $absolute = Path::normalize($file);
-        if (file_exists($absolute)) {
-            return $absolute;
-        }
+    public function getPath()
+    {
+        return $this->path;
+    }
 
-        throw new \Exception( "File '$file' does not exist." );
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    public function getType()
+    {
+        return $this->getType();
     }
 
     public function addFile($file)
     {
-        $realFile = $this->realFile($file);
+        $realFile = $this->fmanager->realFile($file);
 
         if (in_array($realFile, $this->files, true)) {
             return;
@@ -96,61 +107,25 @@ class CombineFiles implements ICombineFiles
         $this->files = [];
     }
 
-    public function getPath()
+    public function getFiles()
     {
-        return $this->path;
-    }
-
-    public function compile()
-    {
-        $files = $this->getFiles();
-        $contents = '';
-        $createJson = [];
-
-        $combineFile = $this->path.'/'.$this->name.'.'.$this->type;
-        $lockFile = $combineFile.'.lock';
-
-        if (!$this->checkFiles($lockFile)) {
-            foreach ($files as $file) {
-                  $contents .= $this->fmanager->read($file, $this->path);
-                  $time = filemtime($this->realFile($file));
-                  $createJson[$file] = $time;
+        $files = array_values($this->files);
+        foreach ($files as $file) {
+            if (!isset($type)) {
+                $type = pathinfo($this->fmanager->realFile($file))['extension'];
+                $this->type = $type;
             }
-            $this->fmanager->write($lockFile, json_encode($createJson));
-            $this->fmanager->write($combineFile, $contents);
+
+            if (pathinfo($this->fmanager->realFile($file))['extension'] != $type) {
+                $badtype = pathinfo($file)['extension'];
+                throw new \Exception("Was set type '$type', but '$file' is '$badtype'");
+            }
         }
-    }
-
-    private function checkFiles($lockFile)
-    {
-          $files = $this->getFiles();
-
-          if (file_exists($lockFile)) {
-              $lock = $this->fmanager->read($lockFile);
-              $json = json_decode($lock);
-              foreach ($files as $file) {
-                  if (!$json->$file) {
-                      return false;
-                  }
-                  $time = $json->$file;
-                  if (!$this->checkFile($file, $time)) {
-                      return false;
-                  }
-              }
-              return true;
-          } else {
-              return false;
-          }
-    }
-
-    private function checkFile($file, $time)
-    {
-        $actual = filemtime($this->realFile($file));
-        return ($actual == $time);
+        return array_values($this->files);
     }
 
     public function __destruct()
     {
-        $this->compile();
+        echo $this->compiler->compile($this->getFiles(), $this->root, $this->path, $this->name, $this->type);
     }
 }

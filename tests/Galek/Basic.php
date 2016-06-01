@@ -10,8 +10,9 @@ class Basic
 {
     public function render()
     {
-        $path = __DIR__.'/css';
-        $t = new Utils\CombineFiles($path);
+        $path = 'css';
+        $root = __DIR__;
+        $t = new Utils\CombineFiles($root, $path);
         $t->addFile('main.css');
         $t->addFile('top.css');
         $t->addFile('bot.css');
@@ -20,4 +21,7 @@ class Basic
 }
 
 $basic = new Basic();
-?><h1><?php $basic->render(); ?></h1>
+?>
+<link rel="stylesheet" type="text/css" href="<?php $basic->render(); ?>">
+
+<h1>Tested</h1>

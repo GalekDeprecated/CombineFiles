@@ -4,17 +4,23 @@ namespace Galek\Utils;
 
 use Galek\Utils\Path;
 
-class FileManager
+class FileManager implements IFileManager
 {
+    /** @var string */
     private $path;
 
-    public function __construct($path = null)
+    /** @var string */
+    private $root;
+
+    public function __construct($root = null, $path = null)
     {
+        $this->root = $root;
         $this->path = $path;
     }
 
     public function write($file, $content)
     {
+          $file = $this->realFile($file, true);
           $fopen = fopen('nette.safe://'.$file, 'w+');
           fwrite($fopen, $content);
           fclose($fopen);
@@ -33,13 +39,14 @@ class FileManager
         return $content;
     }
 
-    public function compare($text, $compare)
+    public function realFile($file, $writing = false)
     {
 
-    }
+        $rootpath = Path::normalize($this->root.'/'.$this->path.'/'.$file);
+        if (file_exists($rootpath)) {
+            return $rootpath;
+        }
 
-    private function realFile($file, $path = '')
-    {
         $real = Path::normalize($this->path.'/'.$file);
         if (file_exists($real)) {
             return $real;
@@ -50,6 +57,10 @@ class FileManager
             return $absolute;
         }
 
-        throw new \Exception( "File '$file' does not exist." );
+        if (!$writing) {
+            throw new \Exception( "File '$file' does not exist." );
+        } else {
+            return $rootpath;
+        }
     }
 }
