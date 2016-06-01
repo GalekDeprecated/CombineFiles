@@ -9,7 +9,6 @@ use Galek\Utils\FileManager;
  */
 class CombineFiles implements ICombineFiles
 {
-
     /** @var array */
     private $files = [];
 
@@ -104,30 +103,50 @@ class CombineFiles implements ICombineFiles
 
     public function compile()
     {
-
-        $ttt = __DIR__.'/test';
         $files = $this->getFiles();
         $contents = '';
         $createJson = [];
-        foreach ($files as $file) {
-              $contents .= $this->fmanager->read($file, $this->path);
-              $time = filemtime($this->realFile($file));
-              $createJson[$file] = $time;
-        }
+
         $combineFile = $this->path.'/'.$this->name.'.'.$this->type;
         $lockFile = $combineFile.'.lock';
 
-        if (file_exists($lockFile)) {
-            $json = $this->fmanager->read($lockFile);
-
-            if ($json != json_encode($createJson)) {
-                $this->fmanager->write($lockFile, json_encode($createJson));
-                $this->fmanager->write($combineFile, $contents);
+        if (!$this->checkFiles($lockFile)) {
+            foreach ($files as $file) {
+                  $contents .= $this->fmanager->read($file, $this->path);
+                  $time = filemtime($this->realFile($file));
+                  $createJson[$file] = $time;
             }
-        } else {
-            $this->fmanager->write($combineFile, $contents);
             $this->fmanager->write($lockFile, json_encode($createJson));
+            $this->fmanager->write($combineFile, $contents);
         }
+    }
+
+    private function checkFiles($lockFile)
+    {
+          $files = $this->getFiles();
+
+          if (file_exists($lockFile)) {
+              $lock = $this->fmanager->read($lockFile);
+              $json = json_decode($lock);
+              foreach ($files as $file) {
+                  if (!$json->$file) {
+                      return false;
+                  }
+                  $time = $json->$file;
+                  if (!$this->checkFile($file, $time)) {
+                      return false;
+                  }
+              }
+              return true;
+          } else {
+              return false;
+          }
+    }
+
+    private function checkFile($file, $time)
+    {
+        $actual = filemtime($this->realFile($file));
+        return ($actual == $time);
     }
 
     public function __destruct()
