@@ -1,6 +1,6 @@
 <?php
 
-namespace Galek\Utils\CombineFiles;
+namespace Galek\Utils;
 
 class Path
 {

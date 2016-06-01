@@ -1,13 +1,23 @@
 <?php
 
-namespace Galek\Utils\CombineFiles;
+namespace Galek\Utils;
 
-class FileManager implements IFileManager
+use Galek\Utils\Path;
+
+class FileManager
 {
+    private $path;
+
+    public function __construct($path = null)
+    {
+        $this->path = $path;
+    }
 
     public function write($file, $content)
     {
-
+          $fopen = fopen('nette.safe://'.$file, 'w+');
+          fwrite($fopen, $content);
+          fclose($fopen);
     }
 
     public function read($file)
@@ -15,7 +25,10 @@ class FileManager implements IFileManager
         $realFile = $this->realFile($file);
         $fopen = fopen('nette.safe://'.$realFile, 'r');
         $size = filesize($realFile);
-        $content = ($size > 0 ? fread($fopen, $size) : false);
+        $content = false;
+        if ($fopen) {
+          $content = ($size > 0 ? fread($fopen, $size) : false);
+        }
         fclose($fopen);
         return $content;
     }
@@ -25,7 +38,7 @@ class FileManager implements IFileManager
 
     }
 
-    private function realFile($file)
+    private function realFile($file, $path = '')
     {
         $real = Path::normalize($this->path.'/'.$file);
         if (file_exists($real)) {

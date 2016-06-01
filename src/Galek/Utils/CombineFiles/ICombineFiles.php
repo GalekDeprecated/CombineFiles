@@ -11,9 +11,9 @@ interface ICombineFiles
     public function getFiles();
 
     /** @return array */
-    public function addFiles();
+    public function addFiles($files);
 
     /** @return string */
-    public function addFile();
+    public function addFile($file);
 
 }

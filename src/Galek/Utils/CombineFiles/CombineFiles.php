@@ -2,8 +2,8 @@
 
 namespace Galek\Utils;
 
-use Galek\Utils\CombineFiles\Path;
-use Galek\Utils\CombineFiles\FileManager;
+use Galek\Utils\Path;
+use Galek\Utils\FileManager;
 /**
  * @author Jan Galek
  */
@@ -29,9 +29,7 @@ class CombineFiles implements ICombineFiles
     {
         $this->path = $path;
         $this->name = $name;
-        var_dump(0);
-        $this->fmanager = new FileManager();
-        var_dump(0);
+        $this->fmanager = new FileManager($path);
     }
 
     public function getFiles()
@@ -108,60 +106,28 @@ class CombineFiles implements ICombineFiles
     {
 
         $ttt = __DIR__.'/test';
-        var_dump(1);
         $files = $this->getFiles();
         $contents = '';
         $createJson = [];
-        //$timing = "{\n";
         foreach ($files as $file) {
-            /*
-            $fopen = fopen('nette.safe://'.$this->realFile($file), 'r');
-            $size = filesize($this->realFile($file));
-            $time = filemtime($this->realFile($file));
-            if ($size > 0) {*/
-              //$contents .= fread($fopen, filesize($this->realFile($file)));
-              $contents .= fread($fopen, filesize($this->realFile($file)));
+              $contents .= $this->fmanager->read($file, $this->path);
+              $time = filemtime($this->realFile($file));
               $createJson[$file] = $time;
-              //$timing .= "\t".$file.": ".$time.",\n";
-            //}
-            //fclose($fopen);
         }
-        var_dump(2);
-        //$timing .= "}";
-
-
-        //$timing = md5($timing);
-        //var_dump($timing);
-        $lockFile = $this->path.'/'.$this->name.'.'.$this->type.'.lock';
+        $combineFile = $this->path.'/'.$this->name.'.'.$this->type;
+        $lockFile = $combineFile.'.lock';
 
         if (file_exists($lockFile)) {
-            $fopen = fopen('nette.safe://'.$lockFile, 'r');
-            $json = fread($fopen, filesize($lockFile));
-            fclose($fopen);
+            $json = $this->fmanager->read($lockFile);
 
             if ($json != json_encode($createJson)) {
-                var_dump('OK');
-                $fopen2 = fopen('nette.safe://'.$lockFile, 'w+');
-                $json2 = fread($fopen2, filesize($lockFile));
-                fwrite($fopen2, json_encode($createJson));
-                fclose($fopen2);
+                $this->fmanager->write($lockFile, json_encode($createJson));
+                $this->fmanager->write($combineFile, $contents);
             }
         } else {
-            $fopen = fopen('nette.safe://'.$lockFile, 'w+');
-            $json = fread($fopen, filesize($lockFile));
-            fwrite($fopen, json_encode($createJson));
-            fclose($fopen);
+            $this->fmanager->write($combineFile, $contents);
+            $this->fmanager->write($lockFile, json_encode($createJson));
         }
-
-        $fopen = fopen('nette.safe://'.$this->path.'/'.$this->name.'.'.$this->type, 'w+');
-        fwrite($fopen, $contents);
-        fclose($fopen);
-    }
-
-    public function __call($name, $arguments)
-    {
-        $ttt = __DIR__.'/test';
-        echo (string) $ttt;
     }
 
     public function __destruct()
