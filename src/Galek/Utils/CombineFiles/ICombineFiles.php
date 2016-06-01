@@ -9,4 +9,11 @@ interface ICombineFiles
 
     /** @return array */
     public function getFiles();
+
+    /** @return array */
+    public function addFiles();
+
+    /** @return string */
+    public function addFile();
+
 }
