@@ -1,6 +1,6 @@
 {
     "name": "galek/combine-files",
-    "description": "Nette extension, Combine files js, css, less,... for SEO",
+    "description": "Combine files js, css, less,... for SEO. Support Nette Framework",
     "homepage": "https://jan-galek.cz",
     "type": "project",
     "license": "GPL-3.0",
