@@ -12,8 +12,17 @@ use Nette;
 
 class Extension extends CompilerExtension
 {
+
+    public function getDefaultConfig()
+    {
+        return [
+          'js' => [],
+          'css' => [],
+        ];
+    }
+
     public function loadConfig()
     {
-      
+
     }
 }
