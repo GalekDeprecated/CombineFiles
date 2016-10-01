@@ -38,7 +38,7 @@ $path = 'css';
 ```php
   $path = 'css';
   $root = __DIR__;
-  $basic = new \Galek\Utils\CombineFiles();
+  $basic = new \Galek\Utils\CombineFiles($root, $path);
   $basic->addFile('main.css');
   $basic->addFile('top.css');
   $basic->addFile('bot.css');
