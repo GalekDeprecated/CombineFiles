@@ -27,6 +27,7 @@ class Compiler implements ICompiler
         $lockFile = $combineFile.'.lock';
 
         if (!$this->checker->checkFiles($files, $lockFile)) {
+            unlink($this->manager->realFile($combineFile, false, false));
             foreach ($files as $file) {
                   $this->manager->write($combineFile, $file);
                   $time = filemtime($this->manager->realFile($file));
