@@ -8,6 +8,8 @@ use Tracy\Debugger;
 
 Debugger::enable(__DIR__ . '/log'); // aktivujeme Laděnku
 
+$e = new Utils\CombineFiles\DI\Extension;
+
 $path = 'css';
 $root = __DIR__;
 $t = new Utils\CombineFiles($root, $path);
