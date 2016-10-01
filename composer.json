@@ -12,12 +12,15 @@
     ],
     "autoload": {
       "psr-4": {
-          "Galek\\Utils\\": "src/Galek/Utils/CombineFiles"
+          "Galek\\Utils\\": "src/Galek/Utils/CombineFiles",
+          "Galek\\Utils\\CombineFiles\\DI\\": "src/Galek/Utils/CombineFiles/DI"
       }
     },
     "require": {
         "php": ">= 5.4.0",
-        "nette/safe-stream": "^2"
+        "nette/safe-stream": "^2",
+		"nette/utils": "~2.4",
+		"nette/di": "~2.4"
     },
     "require-dev": {
         "nette/tester": "^1.7",
