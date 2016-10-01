@@ -36,26 +36,55 @@ $path = 'css';
 
 ## Example
 ```php
-  use Galek\Utils;
-  use Galek\Utils\CombineFiles;
-
-  class Basic
-  {
-      public function render()
-      {
-          $path = 'css';
-          $root = __DIR__;
-          $t = new Utils\CombineFiles($root, $path);
-          $t->addFile('main.css');
-          $t->addFile('top.css');
-          $t->addFile('bot.css');
-          return $t;
-      }
-  }
-
-  $basic = new Basic();
+  $path = 'css';
+  $root = __DIR__;
+  $basic = new \Galek\Utils\CombineFiles();
+  $basic->addFile('main.css');
+  $basic->addFile('top.css');
+  $basic->addFile('bot.css');
   ?>
-  <link rel="stylesheet" type="text/css" href="<?php $basic->render(); ?>">
+  <link rel="stylesheet" type="text/css" href="<?php echo $basic; ?>">
 
   <h1>Tested</h1>
+```
+
+## Example with Nette Extension
+```neon
+extensions:
+	css: \Galek\Utils\CombineFiles\DI\Extension
+	js: \Galek\Utils\CombineFiles\DI\Extension
+
+css:
+	root: ::constant(WWW_DIR) // we can use constant, which we defined for example at index.php
+	localPath: 'css'
+	files:
+		- style.min.css
+		- nittro.full.min.css
+
+js:
+	root: ::constant(WWW_DIR)
+	localPath: 'js'
+	files:
+		- main.js
+		- nittro.full.min.js
+```
+
+```php
+    public function startup()
+    {
+        parent::startup();
+        $this->cssCombinator = $this->context->getService('css.combineFiles');
+    }
+
+    protected function beforeRender()
+    {
+        parent::startup();
+        $this->template->cssCombined = $this->cssCombinator;
+    }
+```
+
+```latte
+    <head>
+        <link rel="stylesheet" type="text/css" href="{$cssCombined}">
+    </head>
 ```
