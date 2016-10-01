@@ -17,6 +17,7 @@ class Extension extends Nette\DI\CompilerExtension
     public $defaults = [
         'root' => __DIR__,
         'localPath' => 'css',
+        'name' => 'combined',
         'files' => []
     ];
 
@@ -31,6 +32,6 @@ class Extension extends Nette\DI\CompilerExtension
             $combiner->addSetup('addFile', [$file]);
         }
 
-        $combiner->setFactory(CombineFiles::class, [$config['root'], $config['localPath']]);
+        $combiner->setFactory(CombineFiles::class, [$config['root'], $config['localPath'], $config['name']]);
     }
 }
