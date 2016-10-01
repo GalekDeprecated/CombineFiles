@@ -21,23 +21,19 @@ class Compiler implements ICompiler
 
     public function compile($files = [], $root = null, $path = null, $name = 'combined', $type = null)
     {
-        $contents = '';
         $createJson = [];
         $combineFile = $name.'.'.$type;
         $combineRealFile = $root.'\\'.$path.'\\'.$name.'.'.$type;
         $lockFile = $combineFile.'.lock';
 
         if (!$this->checker->checkFiles($files, $lockFile)) {
-
             foreach ($files as $file) {
-                  $contents .= $this->manager->read($file, $path);
+                  $this->manager->write($combineFile, $file);
                   $time = filemtime($this->manager->realFile($file));
                   $createJson[$file] = $time;
             }
-            $this->manager->write($lockFile, json_encode($createJson));
-            $this->manager->write($combineFile, $contents);
+            $this->manager->writeLock($lockFile, json_encode($createJson));
         }
         return $path.'/'.$combineFile;
     }
-
 }

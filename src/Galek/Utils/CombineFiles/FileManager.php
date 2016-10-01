@@ -18,12 +18,28 @@ class FileManager implements IFileManager
         $this->path = $path;
     }
 
-    public function write($file, $content)
+    public function writeLock($file, $content)
     {
-          $file = $this->realFile($file, true);
-          $fopen = fopen('nette.safe://'.$file, 'w+');
-          fwrite($fopen, $content);
-          fclose($fopen);
+        $file = $this->realFile($file, true);
+        $fopen = fopen('nette.safe://'.$file, 'w');
+        fwrite($fopen, $content);
+        fclose($fopen);
+    }
+
+    public function write($fileSave, $file)
+    {
+        $fileSave = $this->realFile($fileSave, true);
+        $fopen = fopen('nette.safe://'.$fileSave, 'a');
+
+        $fileread = $this->realFile($file, true);
+        $content = file_get_contents($fileread);
+
+        $pieces = str_split($content, 1024 * 4);
+        foreach ($pieces as $piece) {
+            fwrite($fopen, $piece, strlen($piece));
+        }
+        fclose($fopen);
+
     }
 
     public function read($file)
@@ -33,15 +49,14 @@ class FileManager implements IFileManager
         $size = filesize($realFile);
         $content = false;
         if ($fopen) {
-          $content = ($size > 0 ? fread($fopen, $size) : false);
+            $content = ($size > 0 ? fread($fopen, $size) : false);
         }
         fclose($fopen);
         return $content;
     }
 
-    public function realFile($file, $writing = false)
+    public function realFile($file, $writing = false, $check = true)
     {
-
         $rootpath = Path::normalize($this->root.'/'.$this->path.'/'.$file);
         if (file_exists($rootpath)) {
             return $rootpath;
@@ -56,11 +71,11 @@ class FileManager implements IFileManager
         if (file_exists($absolute)) {
             return $absolute;
         }
-
-        if (!$writing) {
-            throw new \Exception( "File '$file' does not exist." );
-        } else {
-            return $rootpath;
+        if ($check) {
+            if (!$writing) {
+                throw new \Exception("File '$file' does not exist.");
+            }
         }
+        return $rootpath;
     }
 }

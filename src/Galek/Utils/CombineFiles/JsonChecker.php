@@ -1,6 +1,6 @@
 <?php
-
 namespace Galek\Utils;
+
 use Galek\Utils\IFileManager;
 
 class JsonChecker implements IJsonChecker
@@ -14,23 +14,23 @@ class JsonChecker implements IJsonChecker
 
     public function checkFiles($files, $lockFile)
     {
-          if (file_exists($lockFile)) {
-              $lock = $this->fmanager->read($lockFile);
-              $json = json_decode($lock);
-              foreach ($files as $file) {
-                  if (!$json->$file) {
-                      return false;
-                  }
-                  $time = $json->$file;
-                  if (!$this->checkFile($file, $time)) {
-                      return false;
-                  }
-              }
-              return true;
-          } else {
-              $this->fmanager->write($lockFile, '{}');
-              return false;
-          }
+        if (file_exists($this->fmanager->realFile($lockFile, false, false))) {
+            $lock = $this->fmanager->read($lockFile);
+            $json = json_decode($lock);
+            foreach ($files as $file) {
+                if (!$json->$file) {
+                    return false;
+                }
+                $time = $json->$file;
+                if (!$this->checkFile($file, $time)) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            $this->fmanager->writeLock($lockFile, '{}');
+            return false;
+        }
     }
 
     public function checkFile($file, $time)
