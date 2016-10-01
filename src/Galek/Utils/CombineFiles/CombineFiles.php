@@ -38,6 +38,9 @@ class CombineFiles implements ICombineFiles
     /** @var ICompiler */
     private $compiler;
 
+    /** @var string */
+    private $combined;
+
     public function __construct($root, $path = null, $name = 'combined', IFileManager $manager = null, IJsonChecker $checker = null, ICompiler $compiler = null)
     {
         $this->root = $root;
@@ -124,8 +127,11 @@ class CombineFiles implements ICombineFiles
         return array_values($this->files);
     }
 
-    public function __destruct()
+    public function __toString()
     {
-        echo $this->compiler->compile($this->getFiles(), $this->root, $this->path, $this->name, $this->type);
+        if (!isset($this->combined)) {
+            $this->combined = $this->compiler->compile($this->getFiles(), $this->root, $this->path, $this->name, $this->type);
+        }
+        return $this->combined;
     }
 }
