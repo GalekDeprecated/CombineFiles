@@ -64,6 +64,7 @@ css:
 js:
 	root: ::constant(WWW_DIR)
 	localPath: 'js'
+	name: 'myCombinedFile' //We can named outside file
 	files:
 		- main.js
 		- nittro.full.min.js
