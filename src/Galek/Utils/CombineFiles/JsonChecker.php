@@ -18,6 +18,9 @@ class JsonChecker implements IJsonChecker
             $lock = $this->fmanager->read($lockFile);
             $json = json_decode($lock);
             foreach ($files as $file) {
+                if (!$json) {
+                    return false;
+                }
                 if (!$json->$file) {
                     return false;
                 }
